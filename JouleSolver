@@ -1,0 +1,43 @@
+solveJoule[Nn_, Ti_, Ri_, Rf_, a_] := 
+ Module[{Vi, Vf, Nnthi, \[Beta]\[Mu]i, \[Beta]\[Mu]f, TotalEi, 
+   TotalEf, E0, eq, eqbetamuzero, Ttemp},
+  Vi = \[Pi] Ri^2 50 \[Mu]m^3; Vf = \[Pi] Rf^2 50 \[Mu]m^3;
+  Nnthi = If[Ti < Tc[Nn, Vi], Nn *((Ti/Tc[Nn, Vi])^(3/2)), Nn];
+  (*Print["Nnthi:" ,Nnthi];*)
+  \[Beta]\[Mu]i = \[Beta]\[Mu] /. 
+    FindRoot[
+     Nnthi == 
+      Vi/(4 \[Pi]^2) ((2 m)/hbar^2)^(3/2) (kB Ti nK)^(3/2)
+        Sqrt[\[Pi]]/
+       2 PolyLog[3/2, Exp[\[Beta]\[Mu]]], {\[Beta]\[Mu], -10^-10}];
+  \[Beta]\[Mu]i = 
+   If[Im[\[Beta]\[Mu]i] != 0 || Re[\[Beta]\[Mu]i] > 0, 
+    0, \[Beta]\[Mu]i];
+  TotalEi = 
+   Vi/(4 \[Pi]^2) ((2 m)/hbar^2)^(3/2) (kB Ti nK)^(5/2) (
+    3 Sqrt[\[Pi]])/4 PolyLog[5/2, Exp[\[Beta]\[Mu]i]];
+  TotalEf[Tf_] := 
+   TotalEi - (Eint[Nn, Vf, a, Tf] - Eint[Nn, Vi, a, Ti]);
+  (*Use only if Tf>Tf^c, then Nn = Nnth_final*)
+  Ttemp = (Nn (4 \[Pi]^2)/Vf (hbar^2/(2 m))^(3/2) 2/(
+      Sqrt[\[Pi]] PolyLog[3/2, Exp[\[Beta]\[Mu]]]))^(2/3) 1/(kB nK);
+  eq = TotalEf[Ttemp] == 
+    Vf/(4 \[Pi]^2) ((2 m)/hbar^2)^(3/2) (kB Ttemp nK)^(5/2) (
+     3 Sqrt[\[Pi]])/4 PolyLog[5/2, Exp[\[Beta]\[Mu]]];
+  (*If T_f < Tf^c, then use energy conservation directly to get T_f*)
+
+  
+  eqbetamuzero = 
+   TotalEf[Tf] == 
+    Vf/(4 \[Pi]^2) ((2 m)/hbar^2)^(3/2) (kB Tf nK)^(5/2) (
+     3 Sqrt[\[Pi]])/4 PolyLog[5/2, 1];
+  \[Beta]\[Mu]f = \[Beta]\[Mu] /. 
+    FindRoot[eq, {\[Beta]\[Mu], -10^-10}]; \[Beta]\[Mu]f = 
+   If[Im[\[Beta]\[Mu]f] != 0 || Re[\[Beta]\[Mu]f] > 0, 
+    0, \[Beta]\[Mu]f];
+  If[Ti <= (Vi/Vf)^(4/15)*Tc[Nn, Vi], 
+   Tf /. FindRoot[
+     eqbetamuzero, {Tf, Ti}], (Nn (4 \[Pi]^2)/Vf (hbar^2/(2 m))^(3/2)
+       2/(Sqrt[\[Pi]] PolyLog[3/2, Exp[\[Beta]\[Mu]f]]))^(2/3) 1/(
+    kB nK)]
+  ]
