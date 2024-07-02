@@ -35,13 +35,14 @@ solveJoule[Nn_, Ti_, Ri_, Rf_, a_] :=
     FindRoot[eq, {\[Beta]\[Mu], -10^-10}]; \[Beta]\[Mu]f = 
    If[Im[\[Beta]\[Mu]f] != 0 || Re[\[Beta]\[Mu]f] > 0, 
     0, \[Beta]\[Mu]f];
-  If[Ti <= (Vi/Vf)^(4/15)*Tc[Nn, Vi], 
+  (*If T_i + Delta T from interactions < T_c^f, 
+  then use \beta \mu _f = 0*)
+  If[Ti + (Ti *(Vi/Vf)^(2/5) - Tf) < (Vi/Vf)^(4/15)*Tc[Nn, Vi], 
    Tf /. FindRoot[
      eqbetamuzero, {Tf, Ti}], (Nn (4 \[Pi]^2)/Vf (hbar^2/(2 m))^(3/2)
        2/(Sqrt[\[Pi]] PolyLog[3/2, Exp[\[Beta]\[Mu]f]]))^(2/3) 1/(
-    kB nK)]
-  ]
-
+    kB nK)
+   ]
 
 
 Tc[Nnum_, vol_] := (Nnum/vol 1/Zeta[3/2])^(2/3) (2 \[Pi] hbar^2)/(
