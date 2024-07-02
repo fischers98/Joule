@@ -41,3 +41,18 @@ solveJoule[Nn_, Ti_, Ri_, Rf_, a_] :=
        2/(Sqrt[\[Pi]] PolyLog[3/2, Exp[\[Beta]\[Mu]f]]))^(2/3) 1/(
     kB nK)]
   ]
+
+
+
+Tc[Nnum_, vol_] := (Nnum/vol 1/Zeta[3/2])^(2/3) (2 \[Pi] hbar^2)/(
+  m kB nK)
+
+
+Eint[Nn_, vol_, a_, Tt_] := (2 \[Pi] hbar^2 a)/m Nn^2/
+   vol (2 - cf[Nn, vol, Tt]^2);
+
+
+cf[Nnum_, vol_, Tt_] := 
+ Piecewise[{{1, Re[Tt] <= 0}, {1 - (Tt/Tc[Nnum, vol])^(3/2), 
+    0 < Re[Tt] < Tc[Nnum, vol]}}]
+
