@@ -1,6 +1,6 @@
 solveJoule[Nn_, Ti_, Ri_, Rf_, a_] := 
  Module[{Vi, Vf, Nnthi, \[Beta]\[Mu]i, \[Beta]\[Mu]f, TotalEi, 
-   TotalEf, E0, eq, eqbetamuzero, Ttemp},
+   TotalEf, E0, eq, eqbetamuzero, Ttemp, TfCondensed},
   Vi = \[Pi] Ri^2 50 \[Mu]m^3; Vf = \[Pi] Rf^2 50 \[Mu]m^3;
   Nnthi = If[Ti < Tc[Nn, Vi], Nn *((Ti/Tc[Nn, Vi])^(3/2)), Nn];
   (*Print["Nnthi:" ,Nnthi];*)
@@ -37,12 +37,13 @@ solveJoule[Nn_, Ti_, Ri_, Rf_, a_] :=
     0, \[Beta]\[Mu]f];
   (*If T_i + Delta T from interactions < T_c^f, 
   then use \beta \mu _f = 0*)
-  If[Ti + (Ti *(Vi/Vf)^(2/5) - Tf) < (Vi/Vf)^(4/15)*Tc[Nn, Vi], 
-   Tf /. FindRoot[
-     eqbetamuzero, {Tf, Ti}], (Nn (4 \[Pi]^2)/Vf (hbar^2/(2 m))^(3/2)
-       2/(Sqrt[\[Pi]] PolyLog[3/2, Exp[\[Beta]\[Mu]f]]))^(2/3) 1/(
-    kB nK)
+  TfCondensed = Tf /. FindRoot[eqbetamuzero, {Tf, Ti}];
+  If[Ti <= (Vi/Vf)^(4/15)*Tc[Nn, Vi] - (Vf/Vi)^(2/5)*
+      Abs[(Ti *(Vi/Vf)^(2/5) - TfCondensed)], 
+   TfCondensed, (Nn (4 \[Pi]^2)/Vf (hbar^2/(2 m))^(3/2) 2/(
+      Sqrt[\[Pi]] PolyLog[3/2, Exp[\[Beta]\[Mu]f]]))^(2/3) 1/(kB nK)
    ]
+  ]
 
 
 Tc[Nnum_, vol_] := (Nnum/vol 1/Zeta[3/2])^(2/3) (2 \[Pi] hbar^2)/(
